@@ -8,12 +8,15 @@ from settings import *
 
 
 # Loading images
-ship_img = p.image.load('res/PNG/playerShip1_orange.png')
 background_img = p.image.load('res/Backgrounds/darkPurple.png')
 background_img = p.transform.scale(background_img,
                                    (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-meteor_name_list = os.listdir('res/PNG/Meteors')
+laser_img = p.image.load("res/PNG/Lasers/laserRed01.png")
+meteor_images = [p.image.load('res/PNG/Meteors/'+name)
+                 for name in os.listdir('res/PNG/Meteors')]
+ship_images = [p.image.load(f'res/PNG/Damage/playerShip1_damage{i}.png')
+               for i in range(1, 4)]
+ship_images.insert(0, p.image.load('res/PNG/playerShip1_orange.png'))
 
 # Initializing the game window
 p.init()
@@ -22,9 +25,12 @@ screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 p.display.set_caption('Asteroids')
 
 ship = sprites.Spaceship((SCREEN_WIDTH/2, SCREEN_HEIGHT-50),
-                         ship_img)
+                         ship_images)
+# Making groups
 meteor_group = p.sprite.Group()
+laser_group = p.sprite.GroupSingle()
 
+# Making a timer for meteors
 SPAWN_METEOR = p.USEREVENT
 p.time.set_timer(SPAWN_METEOR, 300)
 
@@ -36,22 +42,34 @@ while running:
             running = False
 
         if event.type == SPAWN_METEOR:
-            # Not the best approach. It'll be improved
-            # in the next lesson.
-            meteor_image = p.image.load(
-                'res/PNG/Meteors/'+rnd.choice(meteor_name_list))
+            meteor_image = rnd.choice(meteor_images)
             meteor = sprites.Meteor(
-                (rnd.randint(0,SCREEN_WIDTH), -20), meteor_image)
+                (rnd.randint(0, SCREEN_WIDTH), -20), meteor_image)
             meteor_group.add(meteor)
+        if event.type == p.MOUSEBUTTONDOWN:
+            if len(laser_group) == 0:
+                laser_group.add(sprites.Laser(ship.rect.center,
+                                              laser_img))
+
+    # If the returned list is empty, it evaluates to False.
+    # Otherwise - to True.
+    if p.sprite.spritecollide(ship, meteor_group, True):
+        ship.get_damage(1)
+
+    for laser in laser_group:
+        if p.sprite.spritecollide(laser, meteor_group, True):
+            laser.kill()
 
     # Drawing
     screen.blit(background_img, (0, 0))
+    laser_group.draw(screen)
     ship.draw(screen)
     meteor_group.draw(screen)
 
     # Updating
-    ship.move()
+    ship.update()
     meteor_group.update()
+    laser_group.update()
 
     clock.tick(60)
     p.display.flip()
