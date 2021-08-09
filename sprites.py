@@ -11,6 +11,7 @@ class Spaceship:
         self.rect.center = pos
 
         self.hp = 4
+        self.score = 0
 
     def draw(self, target_surf):
         if self.hp > 0:
