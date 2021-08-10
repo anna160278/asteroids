@@ -5,6 +5,7 @@ from settings import *
 
 class Spaceship:
     def __init__(self, pos, images):
+        self.start_pos = pos
         self.image = images[0]
         self.images = images
         self.rect = self.image.get_rect()
@@ -12,6 +13,7 @@ class Spaceship:
 
         self.hp = 4
         self.score = 0
+        self.DESTROY_EVENT = p.USEREVENT + 1
 
     def draw(self, target_surf):
         if self.hp > 0:
@@ -47,6 +49,14 @@ class Spaceship:
     def get_damage(self, damage):
         if self.hp > 0:
             self.hp -= damage
+            if self.hp == 0:
+                p.event.post(p.event.Event(self.DESTROY_EVENT))
+
+    def rebuild(self):
+        self.hp = 4
+        self.score = 0
+        self.is_alive = True
+        self.rect.center = self.start_pos
 
 
 class Meteor(p.sprite.Sprite):
@@ -75,4 +85,19 @@ class Laser(p.sprite.Sprite):
         self.rect.y += self.speed_y
         if self.rect.bottom < 0:
             self.kill()
+
+
+class Button():
+    def __init__(self, pos, text, font):
+        super().__init__()
+        self.image = p.Surface((450, 80))
+        self.image.fill('#e09f23')
+        self.rect = self.image.get_rect(center=pos)
+
+        self.text_surf, self.text_rect = font.render(text, size=42)
+        self.text_rect.center = self.rect.center
+
+    def draw(self, target_surf):
+        target_surf.blit(self.image, self.rect)
+        target_surf.blit(self.text_surf, self.text_rect)
 

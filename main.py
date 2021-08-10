@@ -8,7 +8,7 @@ import sprites
 from settings import *
 
 
-def draw():
+def draw_game():
     screen.blit(background_img, (0, 0))
     laser_group.draw(screen)
     ship.draw(screen)
@@ -21,7 +21,18 @@ def draw():
                          str(ship.score).zfill(5), WHITE)
 
 
-def update():
+def draw_menu():
+    screen.fill(VIOLET)
+    screen.blit(game_over_surf, game_over_rect)
+    button.draw(screen)
+    screen.blit(hp_img, (20, 20))
+    screen.blit(x_img, (60, 28))
+    score_font.render_to(screen, (80, 23), str(ship.hp), WHITE)
+    score_font.render_to(screen, (SCREEN_WIDTH-180, 23),
+                         str(ship.score).zfill(5), WHITE)
+
+
+def update_game():
     laser_group.update()
     ship.update()
     meteor_group.update()
@@ -58,6 +69,21 @@ def make_meteor():
     meteor_group.add(meteor)
 
 
+def stop_game():
+    p.mouse.set_visible(True)
+    # Either fadeout or game_over_sound
+    bg_music.fadeout(5000)
+    meteor_group.empty()
+    laser_group.empty()
+
+
+def restart_game():
+    p.mouse.set_visible(False)
+    new_game_sound.play()
+    bg_music.play(-1)
+    ship.rebuild()
+
+
 p.init()
 # Loading images
 background_img = p.image.load('res/Backgrounds/darkPurple.png')
@@ -84,10 +110,19 @@ bg_music = p.mixer.Sound('res/Bonus/space_ambiance.wav')
 clock = p.time.Clock()
 screen = p.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 p.display.set_caption('Asteroids')
+game_state = 'MAIN GAME'    # MAIN GAME or MENU
 
 ship = sprites.Spaceship((SCREEN_WIDTH/2, SCREEN_HEIGHT-50),
                          ship_images)
+# Fonts
 score_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 32)
+text_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 52)
+
+# Text and buttons
+button = sprites.Button((SCREEN_WIDTH/2, SCREEN_HEIGHT/2),
+                        'restart', text_font)
+game_over_surf, game_over_rect = text_font.render("game over")
+game_over_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/3)
 
 # Making groups
 meteor_group = p.sprite.Group()
@@ -97,7 +132,9 @@ laser_group = p.sprite.GroupSingle()
 SPAWN_METEOR = p.USEREVENT
 p.time.set_timer(SPAWN_METEOR, 300)
 
+p.mouse.set_visible(False)
 bg_music.play(-1)
+
 running = True
 while running:
     for event in p.event.get():
@@ -105,14 +142,26 @@ while running:
                                     and event.key == p.K_ESCAPE):
             running = False
 
-        if event.type == SPAWN_METEOR:
-            make_meteor()
-        if event.type == p.MOUSEBUTTONDOWN:
-            if len(laser_group) == 0:
-                make_laser()
+        if game_state == 'MAIN GAME':
+            if event.type == SPAWN_METEOR:
+                make_meteor()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if len(laser_group) == 0:
+                    make_laser()
+            if event.type == ship.DESTROY_EVENT:
+                game_state = 'MENU'
+                stop_game()
+        else:
+            if (event.type == p.MOUSEBUTTONDOWN
+                    and button.rect.collidepoint(event.pos)):
+                game_state = 'MAIN GAME'
+                restart_game()
 
-    draw()
-    update()
+    if game_state == 'MAIN GAME':
+        draw_game()
+        update_game()
+    else:
+        draw_menu()
 
     clock.tick(60)
     p.display.flip()
