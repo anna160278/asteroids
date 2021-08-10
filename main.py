@@ -58,7 +58,7 @@ def check_ship_collision():
 
 def make_laser():
     fire_laser_sound.play()
-    laser_group.add(sprites.Laser(ship.rect.center, laser_img))
+    laser_group.add(sprites.Laser(ship.rect.center, laser_images))
     fire_laser_sound.play()
 
 
@@ -98,6 +98,8 @@ ship_images.insert(0, p.image.load('res/PNG/playerShip1_orange.png'))
 hp_img = p.image.load('res/PNG/UI/playerLife1_orange.png')
 x_img = p.image.load('res/PNG/UI/numeralX.png')
 
+laser_images = [p.image.load(f'res/PNG/Lasers/laserBlue{i}.png')
+                for i in range(12, 17)]
 # Loading sounds
 fire_laser_sound = p.mixer.Sound('res/Bonus/sfx_laser1.ogg')
 hit_meteor_sound = p.mixer.Sound('res/Bonus/meteor_hit.wav')

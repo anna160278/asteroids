@@ -75,9 +75,12 @@ class Meteor(p.sprite.Sprite):
 
 
 class Laser(p.sprite.Sprite):
-    def __init__(self, pos, image):
+    def __init__(self, pos, images):
         super().__init__()
-        self.image = image
+        self.images = images
+        self.image = self.images[0]
+        self.animation_len = len(self.images)
+        self.frame = 0
         self.rect = self.image.get_rect(center=pos)
         self.speed_y = -10
 
@@ -85,6 +88,16 @@ class Laser(p.sprite.Sprite):
         self.rect.y += self.speed_y
         if self.rect.bottom < 0:
             self.kill()
+
+        # Animating
+        self.frame += 0.25
+        if int(self.frame) == self.animation_len:
+            self.frame = 0
+        self.image = self.images[int(self.frame)]
+        
+        # More concise way
+        # self.frame = (self.frame + 1) % self.animation_len
+        # self.image = self.images[self.frame]
 
 
 class Button():
