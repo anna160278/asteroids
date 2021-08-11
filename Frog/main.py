@@ -1,7 +1,7 @@
 import pygame as p
 
 
-class Frog(p.sprite.Sprite):
+class Frog():
     def __init__(self):
         super().__init__()
         self.is_animating = False

@@ -4,12 +4,16 @@ from settings import *
 
 
 class Spaceship:
-    def __init__(self, pos, images):
+    def __init__(self, pos, images, thruster_images):
         self.start_pos = pos
-        self.image = images[0]
         self.images = images
+        self.image = images[0]
         self.rect = self.image.get_rect()
         self.rect.center = pos
+
+        self.frame = 0
+        self.thruster_images = thruster_images
+        self.thruster_animation_len = len(thruster_images)
 
         self.hp = 4
         self.score = 0
@@ -20,6 +24,20 @@ class Spaceship:
             target_surf.blit(self.image, self.rect)
             if self.hp < 4:
                 target_surf.blit(self.images[-self.hp], self.rect)
+        self.draw_thurster(target_surf)
+
+    def draw_thurster(self, target_surf):
+        self.frame += 0.5
+        if int(self.frame) == self.thruster_animation_len:
+            self.frame = 0
+        img = self.thruster_images[int(self.frame)]
+
+        # x positions are different because we are placing
+        # the top left corner of the image
+        l_thruster_pos = (self.rect.centerx-35, self.rect.bottom-18)
+        r_thruster_pos = (self.rect.centerx+21, self.rect.bottom-18)
+        target_surf.blit(img, l_thruster_pos)
+        target_surf.blit(img, r_thruster_pos)
 
     def update(self):
         self.move()
@@ -67,11 +85,21 @@ class Meteor(p.sprite.Sprite):
         self.speed_x = rnd.randint(-3, 3)
         self.speed_y = rnd.randint(3, 9)
 
+        self.original_image = image
+        self.angle = 0
+        self.rotation_speed = rnd.randint(-3, 3)
+
     def update(self):
+        self.rotate()
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
         if self.rect.y > SCREEN_HEIGHT:
             self.kill()
+
+    def rotate(self):
+        self.angle += self.rotation_speed
+        self.image = p.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
 
 class Laser(p.sprite.Sprite):

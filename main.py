@@ -100,6 +100,8 @@ x_img = p.image.load('res/PNG/UI/numeralX.png')
 
 laser_images = [p.image.load(f'res/PNG/Lasers/laserBlue{i}.png')
                 for i in range(12, 17)]
+thruster_images = [p.image.load(f'res/PNG/Effects/fire{i}.png')
+                  for i in range(11, 18)]
 # Loading sounds
 fire_laser_sound = p.mixer.Sound('res/Bonus/sfx_laser1.ogg')
 hit_meteor_sound = p.mixer.Sound('res/Bonus/meteor_hit.wav')
@@ -115,7 +117,7 @@ p.display.set_caption('Asteroids')
 game_state = 'MAIN GAME'    # MAIN GAME or MENU
 
 ship = sprites.Spaceship((SCREEN_WIDTH/2, SCREEN_HEIGHT-50),
-                         ship_images)
+                         ship_images, thruster_images)
 # Fonts
 score_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 32)
 text_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 52)
