@@ -13,6 +13,7 @@ def draw_game():
     laser_group.draw(screen)
     ship.draw(screen)
     meteor_group.draw(screen)
+    powerup_group.draw(screen)
 
     screen.blit(hp_img, (20, 20))
     screen.blit(x_img, (60, 28))
@@ -36,8 +37,10 @@ def update_game():
     laser_group.update()
     ship.update()
     meteor_group.update()
+    powerup_group.update()
     check_laser_collision()
     check_ship_collision()
+    check_powerup_collision()
 
 
 def check_laser_collision():
@@ -56,6 +59,18 @@ def check_ship_collision():
         ship.get_damage(1)
 
 
+def check_powerup_collision():
+    powerup = p.sprite.spritecollideany(ship, powerup_group)
+    if powerup == None:
+        return
+    if powerup.type == 'shield':
+        ship.apply_shield()
+        powerup.kill()
+    # Placeholder for the next homework
+    elif powerup.type == 'bolt':
+        powerup.kill()
+
+        
 def make_laser():
     fire_laser_sound.play()
     laser_group.add(sprites.Laser(ship.rect.center, laser_images))
@@ -67,6 +82,17 @@ def make_meteor():
     meteor = sprites.Meteor((rnd.randint(0, SCREEN_WIDTH), -20),
                             meteor_image)
     meteor_group.add(meteor)
+
+
+def make_powerup():
+    random_number = rnd.randint(0, 100)
+    pos = (rnd.randint(0, SCREEN_WIDTH), -20)
+    if random_number % 2 == 0:
+        powerup = sprites.PowerUp(pos, power_ups['shield'], 'shield')
+        powerup_group.add(powerup)
+    elif random_number % 3 == 0:
+        powerup = sprites.PowerUp(pos, power_ups['bolt'], 'bolt')
+        powerup_group.add(powerup)
 
 
 def stop_game():
@@ -102,6 +128,11 @@ laser_images = [p.image.load(f'res/PNG/Lasers/laserBlue{i}.png')
                 for i in range(12, 17)]
 thruster_images = [p.image.load(f'res/PNG/Effects/fire{i}.png')
                   for i in range(11, 18)]
+power_ups = {'shield': p.image.load('res/PNG/Power-ups/shield_silver.png'),
+             'bolt': p.image.load('res/PNG/Power-ups/bolt_silver.png'),}
+shield_images = [p.image.load(f'res/PNG/Effects/shield{i}.png')
+                 for i in range(1, 4)]
+
 # Loading sounds
 fire_laser_sound = p.mixer.Sound('res/Bonus/sfx_laser1.ogg')
 hit_meteor_sound = p.mixer.Sound('res/Bonus/meteor_hit.wav')
@@ -117,7 +148,7 @@ p.display.set_caption('Asteroids')
 game_state = 'MAIN GAME'    # MAIN GAME or MENU
 
 ship = sprites.Spaceship((SCREEN_WIDTH/2, SCREEN_HEIGHT-50),
-                         ship_images, thruster_images)
+                         ship_images, thruster_images, shield_images)
 # Fonts
 score_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 32)
 text_font = p.freetype.Font('res/Bonus/kenvector_future.ttf', 52)
@@ -131,10 +162,14 @@ game_over_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/3)
 # Making groups
 meteor_group = p.sprite.Group()
 laser_group = p.sprite.GroupSingle()
+powerup_group = p.sprite.Group()
 
 # Making a timer for meteors
 SPAWN_METEOR = p.USEREVENT
 p.time.set_timer(SPAWN_METEOR, 300)
+# Making a timer for buffs
+SPAWN_POWERUP = p.USEREVENT + 2
+p.time.set_timer(SPAWN_POWERUP, 3000)
 
 p.mouse.set_visible(False)
 bg_music.play(-1)
@@ -149,10 +184,12 @@ while running:
         if game_state == 'MAIN GAME':
             if event.type == SPAWN_METEOR:
                 make_meteor()
-            if event.type == p.MOUSEBUTTONDOWN:
+            elif event.type == SPAWN_POWERUP:
+                make_powerup()
+            elif event.type == p.MOUSEBUTTONDOWN:
                 if len(laser_group) == 0:
                     make_laser()
-            if event.type == ship.DESTROY_EVENT:
+            elif event.type == ship.DESTROY_EVENT:
                 game_state = 'MENU'
                 stop_game()
         else:

@@ -4,7 +4,8 @@ from settings import *
 
 
 class Spaceship:
-    def __init__(self, pos, images, thruster_images):
+    def __init__(self, pos, images, thruster_images,
+                 shield_images):
         self.start_pos = pos
         self.images = images
         self.image = images[0]
@@ -14,6 +15,10 @@ class Spaceship:
         self.frame = 0
         self.thruster_images = thruster_images
         self.thruster_animation_len = len(thruster_images)
+
+        self.shield_power = 0
+        self.shield_images = shield_images
+        self.shield_rect = shield_images[0].get_rect()
 
         self.hp = 4
         self.score = 0
@@ -25,6 +30,7 @@ class Spaceship:
             if self.hp < 4:
                 target_surf.blit(self.images[-self.hp], self.rect)
         self.draw_thurster(target_surf)
+        self.draw_shield(target_surf)
 
     def draw_thurster(self, target_surf):
         self.frame += 0.5
@@ -38,6 +44,16 @@ class Spaceship:
         r_thruster_pos = (self.rect.centerx+21, self.rect.bottom-18)
         target_surf.blit(img, l_thruster_pos)
         target_surf.blit(img, r_thruster_pos)
+
+    def draw_shield(self, target_surf):
+        if self.shield_power > 0:
+            self.shield_rect.center = self.rect.center
+            if self.shield_power != 1:
+                # Compensating for the thicker border
+                # of the second and third shield image
+                self.shield_rect.move_ip((-5, -5))
+            target_surf.blit(self.shield_images[self.shield_power-1],
+                             self.shield_rect)
 
     def update(self):
         self.move()
@@ -65,7 +81,9 @@ class Spaceship:
             self.rect.bottom = SCREEN_HEIGHT
 
     def get_damage(self, damage):
-        if self.hp > 0:
+        if self.shield_power > 0:
+            self.shield_power -= damage
+        else:
             self.hp -= damage
             if self.hp == 0:
                 p.event.post(p.event.Event(self.DESTROY_EVENT))
@@ -75,6 +93,12 @@ class Spaceship:
         self.score = 0
         self.is_alive = True
         self.rect.center = self.start_pos
+        
+    def apply_shield(self):
+        self.shield_power = 3
+
+    def apply_laserx2(self):
+        pass
 
 
 class Meteor(p.sprite.Sprite):
@@ -142,3 +166,16 @@ class Button():
         target_surf.blit(self.image, self.rect)
         target_surf.blit(self.text_surf, self.text_rect)
 
+
+class PowerUp(p.sprite.Sprite):
+    def __init__(self, pos, image, _type):
+        super().__init__()
+        self.image = image
+        self.type = _type
+        self.rect = self.image.get_rect(center=pos)
+        self.speed_y = rnd.randint(1, 6)
+
+    def update(self):
+        self.rect.y += self.speed_y
+        if self.rect.bottom < 0:
+            self.kill()
