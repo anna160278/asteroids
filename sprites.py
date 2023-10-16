@@ -1,5 +1,5 @@
 import random as rnd
-import pygame as p
+import pygame as pg
 from settings import *
 
 
@@ -22,7 +22,7 @@ class Spaceship:
 
         self.hp = 4
         self.score = 0
-        self.DESTROY_EVENT = p.USEREVENT + 1
+        self.DESTROY_EVENT = pg.USEREVENT + 1
 
     def draw(self, target_surf):
         if self.hp > 0:
@@ -60,14 +60,14 @@ class Spaceship:
         self.restrain()
 
     def move(self):
-        keys = p.key.get_pressed()
-        if keys[p.K_a]:
+        keys = pg.key.get_pressed()
+        if keys[pg.K_a]:
             self.rect.x -= 5
-        if keys[p.K_d]:
+        if keys[pg.K_d]:
             self.rect.x += 5
-        if keys[p.K_w]:
+        if keys[pg.K_w]:
             self.rect.y -= 5
-        if keys[p.K_s]:
+        if keys[pg.K_s]:
             self.rect.y += 5
 
     def restrain(self):
@@ -86,7 +86,7 @@ class Spaceship:
         else:
             self.hp -= damage
             if self.hp == 0:
-                p.event.post(p.event.Event(self.DESTROY_EVENT))
+                pg.event.post(pg.event.Event(self.DESTROY_EVENT))
 
     def rebuild(self):
         self.hp = 4
@@ -101,7 +101,7 @@ class Spaceship:
         pass
 
 
-class Meteor(p.sprite.Sprite):
+class Meteor(pg.sprite.Sprite):
     def __init__(self, pos, image):
         super().__init__()
         self.image = image
@@ -122,11 +122,11 @@ class Meteor(p.sprite.Sprite):
 
     def rotate(self):
         self.angle += self.rotation_speed
-        self.image = p.transform.rotate(self.original_image, self.angle)
+        self.image = pg.transform.rotate(self.original_image, self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
 
-class Laser(p.sprite.Sprite):
+class Laser(pg.sprite.Sprite):
     def __init__(self, pos, images):
         super().__init__()
         self.images = images
@@ -155,7 +155,7 @@ class Laser(p.sprite.Sprite):
 class Button():
     def __init__(self, pos, text, font):
         super().__init__()
-        self.image = p.Surface((450, 80))
+        self.image = pg.Surface((450, 80))
         self.image.fill('#e09f23')
         self.rect = self.image.get_rect(center=pos)
 
@@ -167,7 +167,7 @@ class Button():
         target_surf.blit(self.text_surf, self.text_rect)
 
 
-class PowerUp(p.sprite.Sprite):
+class PowerUp(pg.sprite.Sprite):
     def __init__(self, pos, image, _type):
         super().__init__()
         self.image = image
