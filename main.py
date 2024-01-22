@@ -18,7 +18,7 @@ def draw_game():
     screen.blit(hp_img, (20, 20))
     screen.blit(x_img, (60, 28))
     score_font.render_to(screen, (85, 23), str(ship.hp), WHITE)
-    score_font.render_to(screen, (SCREEN_WIDTH-180, 23), 
+    score_font.render_to(screen, (SCREEN_WIDTH - 180, 23),
                          str(ship.score).zfill(5), WHITE)
 
 
@@ -26,11 +26,11 @@ def draw_menu():
     screen.fill(VIOLET)
     screen.blit(game_over_surf, game_over_rect)
     button.draw(screen)
+    quit_button.draw(screen)
     screen.blit(hp_img, (20, 20))
     screen.blit(x_img, (60, 28))
     score_font.render_to(screen, (80, 23), str(ship.hp), WHITE)
-    score_font.render_to(screen, (SCREEN_WIDTH-180, 23),
-                         str(ship.score).zfill(5), WHITE)
+    score_font.render_to(screen, (SCREEN_WIDTH - 180, 23), str(ship.score).zfill(3), WHITE)
 
 
 def update_game():
@@ -70,7 +70,7 @@ def check_powerup_collision():
     elif powerup.type == 'bolt':
         powerup.kill()
 
-        
+
 def make_laser():
     fire_laser_sound.play()
     laser_group.add(sprites.Laser(ship.rect.center, laser_images))
@@ -145,19 +145,19 @@ bg_music = pg.mixer.Sound('res/Bonus/space_ambiance.wav')
 clock = pg.time.Clock()
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pg.display.set_caption('Asteroids')
-game_state = 'MAIN GAME'    # MAIN GAME or MENU
+game_state = 'MAIN GAME'  # MAIN GAME or MENU
 
-ship = sprites.Spaceship((SCREEN_WIDTH/2, SCREEN_HEIGHT-50),
+ship = sprites.Spaceship((SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50),
                          ship_images, thruster_images, shield_images)
 # Fonts
 score_font = pg.freetype.Font('res/Bonus/kenvector_future.ttf', 32)
 text_font = pg.freetype.Font('res/Bonus/kenvector_future.ttf', 52)
 
 # Text and buttons
-button = sprites.Button((SCREEN_WIDTH/2, SCREEN_HEIGHT/2),
-                        'restart', text_font)
+button = sprites.Button((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), 'restart', text_font)
+quit_button = sprites.Button((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100), 'quit', text_font)
 game_over_surf, game_over_rect = text_font.render("game over")
-game_over_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/3)
+game_over_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
 
 # Making groups
 meteor_group = pg.sprite.Group()
@@ -193,10 +193,13 @@ while running:
                 game_state = 'MENU'
                 stop_game()
         else:
-            if (event.type == pg.MOUSEBUTTONDOWN
-                    and button.rect.collidepoint(event.pos)):
-                game_state = 'MAIN GAME'
-                restart_game()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if button.rect.collidepoint(event.pos):
+                    game_state = 'MAIN GAME'
+                    restart_game()
+                if quit_button.rect.collidepoint(event.pos):
+                    running = False
+
 
     if game_state == 'MAIN GAME':
         draw_game()
@@ -206,4 +209,3 @@ while running:
 
     clock.tick(60)
     pg.display.flip()
-
