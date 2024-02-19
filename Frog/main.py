@@ -48,7 +48,7 @@ while running:
 
     screen.fill((255, 255, 255))
 
-    frog.update(0.25)
+    frog.update(0.15)
     frog.draw(screen)
 
     clock.tick(60)

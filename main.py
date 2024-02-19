@@ -139,7 +139,8 @@ hit_meteor_sound = pg.mixer.Sound('res/Bonus/meteor_hit.wav')
 hit_ship_sound = pg.mixer.Sound('res/Bonus/hit.wav')
 game_over_sound = pg.mixer.Sound('res/Bonus/sfx_lose.ogg')
 new_game_sound = pg.mixer.Sound('res/Bonus/sfx_twoTone.ogg')
-bg_music = pg.mixer.Sound('res/Bonus/space_ambiance.wav')
+# bg_music = pg.mixer.Sound('res/Bonus/space_ambiance.wav')
+bg_music = pg.mixer.Sound('res/Bonus/background_music.mp3')
 
 # Initializing the game window
 clock = pg.time.Clock()
