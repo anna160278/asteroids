@@ -18,8 +18,7 @@ def draw_game():
     screen.blit(hp_img, (20, 20))
     screen.blit(x_img, (60, 28))
     score_font.render_to(screen, (85, 23), str(ship.hp), WHITE)
-    score_font.render_to(screen, (SCREEN_WIDTH - 180, 23),
-                         str(ship.score).zfill(5), WHITE)
+    score_font.render_to(screen, (SCREEN_WIDTH - 180, 23), str(ship.score).zfill(5), WHITE)
 
 
 def draw_menu():
@@ -68,19 +67,21 @@ def check_powerup_collision():
         powerup.kill()
     # Placeholder for the next homework
     elif powerup.type == 'bolt':
+        ship.apply_laserx2()
         powerup.kill()
 
 
 def make_laser():
     fire_laser_sound.play()
-    laser_group.add(sprites.Laser(ship.rect.center, laser_images))
+    for i in range(ship.laser_count):
+        x, y = ship.rect.center
+        laser_group.add(sprites.Laser((x, y + i * 100), laser_images))
     fire_laser_sound.play()
 
 
 def make_meteor():
     meteor_image = rnd.choice(meteor_images)
-    meteor = sprites.Meteor((rnd.randint(0, SCREEN_WIDTH), -20),
-                            meteor_image)
+    meteor = sprites.Meteor((rnd.randint(0, SCREEN_WIDTH), -20), meteor_image)
     meteor_group.add(meteor)
 
 
@@ -90,7 +91,7 @@ def make_powerup():
     if random_number % 2 == 0:
         powerup = sprites.PowerUp(pos, power_ups['shield'], 'shield')
         powerup_group.add(powerup)
-    elif random_number % 3 == 0:
+    else:
         powerup = sprites.PowerUp(pos, power_ups['bolt'], 'bolt')
         powerup_group.add(powerup)
 
@@ -108,6 +109,7 @@ def restart_game():
     new_game_sound.play()
     bg_music.play(-1)
     ship.rebuild()
+    ship.laserx1()
 
 
 pg.init()
@@ -128,8 +130,8 @@ laser_images = [pg.image.load(f'res/PNG/Lasers/laserBlue{i}.png')
                 for i in range(12, 17)]
 thruster_images = [pg.image.load(f'res/PNG/Effects/fire{i}.png')
                    for i in range(11, 18)]
-power_ups = {'shield': pg.image.load('res/PNG/Power-ups/shield_silver.png'),
-             'bolt': pg.image.load('res/PNG/Power-ups/bolt_silver.png'), }
+power_ups = {'shield': pg.image.load('res/PNG/Power-ups/shield_gold.png'),
+             'bolt': pg.image.load('res/PNG/Power-ups/bolt_gold.png'), }
 shield_images = [pg.image.load(f'res/PNG/Effects/shield{i}.png')
                  for i in range(1, 4)]
 
@@ -162,7 +164,7 @@ game_over_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
 
 # Making groups
 meteor_group = pg.sprite.Group()
-laser_group = pg.sprite.GroupSingle()
+laser_group = pg.sprite.Group()
 powerup_group = pg.sprite.Group()
 
 # Making a timer for meteors
@@ -200,7 +202,6 @@ while running:
                     restart_game()
                 if quit_button.rect.collidepoint(event.pos):
                     running = False
-
 
     if game_state == 'MAIN GAME':
         draw_game()

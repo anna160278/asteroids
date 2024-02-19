@@ -4,8 +4,7 @@ from settings import *
 
 
 class Spaceship:
-    def __init__(self, pos, images, thruster_images,
-                 shield_images):
+    def __init__(self, pos, images, thruster_images, shield_images):
         self.start_pos = pos
         self.images = images
         self.image = images[0]
@@ -20,9 +19,12 @@ class Spaceship:
         self.shield_images = shield_images
         self.shield_rect = shield_images[0].get_rect()
 
+        self.laser_count = 1
+
         self.hp = 4
         self.score = 0
         self.DESTROY_EVENT = pg.USEREVENT + 1
+
 
     def draw(self, target_surf):
         if self.hp > 0:
@@ -61,13 +63,13 @@ class Spaceship:
 
     def move(self):
         keys = pg.key.get_pressed()
-        if keys[pg.K_a]:
+        if keys[pg.K_a] or keys[pg.K_LEFT]:
             self.rect.x -= 5
-        if keys[pg.K_d]:
+        if keys[pg.K_d] or keys[pg.K_RIGHT]:
             self.rect.x += 5
-        if keys[pg.K_w]:
+        if keys[pg.K_w] or keys[pg.K_UP]:
             self.rect.y -= 5
-        if keys[pg.K_s]:
+        if keys[pg.K_s] or keys[pg.K_DOWN]:
             self.rect.y += 5
 
     def restrain(self):
@@ -98,7 +100,10 @@ class Spaceship:
         self.shield_power = 3
 
     def apply_laserx2(self):
-        pass
+        self.laser_count += 1
+
+    def laserx1(self):
+        self.laser_count = 1
 
 
 class Meteor(pg.sprite.Sprite):
